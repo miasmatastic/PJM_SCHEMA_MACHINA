@@ -251,7 +251,18 @@ ${jsonString}
             const output = document.getElementById('schema-output');
             const text = output.textContent;
             
-            const blob = new Blob([text], { type: 'application/json' });
+            // Extract JSON from HTML script tags if present
+            let jsonContent = text;
+            // Look for the opening script tag and closing script tag
+            const scriptStart = text.indexOf('<script type="application/ld+json">');
+            const scriptEnd = text.indexOf('</script>');
+            
+            if (scriptStart !== -1 && scriptEnd !== -1) {
+                // Extract content between tags
+                jsonContent = text.substring(scriptStart + '<script type="application/ld+json">'.length, scriptEnd).trim();
+            }
+            
+            const blob = new Blob([jsonContent], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -605,11 +616,17 @@ ${jsonString}
             return;
         }
 
+        // Sanitize filename and ensure it's not empty
+        let sanitizedName = selectedPreset.replace(/[^a-z0-9]/gi, '_');
+        if (!sanitizedName || sanitizedName === '_') {
+            sanitizedName = 'preset';
+        }
+
         const blob = new Blob([JSON.stringify(preset, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${selectedPreset.replace(/[^a-z0-9]/gi, '_')}_preset.json`;
+        a.download = `${sanitizedName}_preset.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -629,9 +646,24 @@ ${jsonString}
             try {
                 const preset = JSON.parse(e.target.result);
                 
-                // Validate preset structure
-                if (!preset.name || !preset.organization || !preset.website) {
+                // Validate preset structure and types
+                if (!preset || typeof preset !== 'object') {
                     this.showErrorMessage('Invalid preset file format');
+                    return;
+                }
+                
+                if (!preset.name || typeof preset.name !== 'string') {
+                    this.showErrorMessage('Invalid preset: missing or invalid name');
+                    return;
+                }
+                
+                if (!preset.organization || typeof preset.organization !== 'object') {
+                    this.showErrorMessage('Invalid preset: missing or invalid organization data');
+                    return;
+                }
+                
+                if (!preset.website || typeof preset.website !== 'object') {
+                    this.showErrorMessage('Invalid preset: missing or invalid website data');
                     return;
                 }
 
