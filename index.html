@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON-LD Schema Generator Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>JSON-LD Schema Generator</h1>
+            <p class="subtitle">Generate SEO-optimized JSON-LD schema for your blog and website</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Schema Type Selection -->
+            <section class="schema-selection">
+                <h2>Select Schema Types</h2>
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" id="article-schema" value="Article">
+                        <span>Article/BlogPosting</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="organization-schema" value="Organization">
+                        <span>Organization</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="website-schema" value="WebSite">
+                        <span>WebSite</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="breadcrumb-schema" value="BreadcrumbList">
+                        <span>BreadcrumbList</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="person-schema" value="Person">
+                        <span>Person/Author</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Data Entry Forms -->
+            <section class="data-entry">
+                <h2>Enter Schema Data</h2>
+                
+                <!-- Article Schema Fields -->
+                <div id="article-fields" class="schema-fields" style="display: none;">
+                    <h3>Article/BlogPosting Details</h3>
+                    <div class="form-group">
+                        <label for="article-headline">Headline:</label>
+                        <input type="text" id="article-headline" placeholder="Enter article headline">
+                    </div>
+                    <div class="form-group">
+                        <label for="article-description">Description:</label>
+                        <textarea id="article-description" placeholder="Enter article description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="article-author">Author Name:</label>
+                        <input type="text" id="article-author" placeholder="Enter author name">
+                    </div>
+                    <div class="form-group">
+                        <label for="article-date">Date Published:</label>
+                        <input type="date" id="article-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="article-image">Image URL:</label>
+                        <input type="url" id="article-image" placeholder="https://example.com/image.jpg">
+                    </div>
+                </div>
+
+                <!-- Organization Schema Fields -->
+                <div id="organization-fields" class="schema-fields" style="display: none;">
+                    <h3>Organization Details</h3>
+                    <div class="form-group">
+                        <label for="org-name">Organization Name:</label>
+                        <input type="text" id="org-name" placeholder="Enter organization name">
+                    </div>
+                    <div class="form-group">
+                        <label for="org-url">Website URL:</label>
+                        <input type="url" id="org-url" placeholder="https://example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="org-logo">Logo URL:</label>
+                        <input type="url" id="org-logo" placeholder="https://example.com/logo.png">
+                    </div>
+                    <div class="form-group">
+                        <label for="org-description">Description:</label>
+                        <textarea id="org-description" placeholder="Enter organization description"></textarea>
+                    </div>
+                </div>
+
+                <!-- Website Schema Fields -->
+                <div id="website-fields" class="schema-fields" style="display: none;">
+                    <h3>WebSite Details</h3>
+                    <div class="form-group">
+                        <label for="website-name">Website Name:</label>
+                        <input type="text" id="website-name" placeholder="Enter website name">
+                    </div>
+                    <div class="form-group">
+                        <label for="website-url">Website URL:</label>
+                        <input type="url" id="website-url" placeholder="https://example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="website-search">Search URL Pattern:</label>
+                        <input type="text" id="website-search" placeholder="https://example.com/search?q={search_term_string}">
+                    </div>
+                </div>
+
+                <!-- Breadcrumb Schema Fields -->
+                <div id="breadcrumb-fields" class="schema-fields" style="display: none;">
+                    <h3>Breadcrumb Details</h3>
+                    <div class="form-group">
+                        <label for="breadcrumb-items">Breadcrumb Items (one per line, format: Name|URL):</label>
+                        <textarea id="breadcrumb-items" placeholder="Example: Home|https://example.com (one per line)"></textarea>
+                    </div>
+                </div>
+
+                <!-- Person Schema Fields -->
+                <div id="person-fields" class="schema-fields" style="display: none;">
+                    <h3>Person/Author Details</h3>
+                    <div class="form-group">
+                        <label for="person-name">Name:</label>
+                        <input type="text" id="person-name" placeholder="Enter person name">
+                    </div>
+                    <div class="form-group">
+                        <label for="person-url">Profile URL:</label>
+                        <input type="url" id="person-url" placeholder="https://example.com/author">
+                    </div>
+                    <div class="form-group">
+                        <label for="person-description">Description:</label>
+                        <textarea id="person-description" placeholder="Enter person description"></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Generated Schema Output -->
+            <section class="schema-output">
+                <h2>Generated Schema</h2>
+                <div class="output-controls">
+                    <button id="generate-btn" class="btn btn-primary">Generate Schema</button>
+                    <button id="copy-btn" class="btn btn-secondary">Copy to Clipboard</button>
+                    <button id="export-btn" class="btn btn-secondary">Export JSON</button>
+                </div>
+                <pre id="schema-output" class="code-output"><code>{
+  "@context": "https://schema.org",
+  "@type": "...",
+  "...": "Select schema types and fill in the data to generate"
+}</code></pre>
+            </section>
+
+            <!-- Save/Load Configurations -->
+            <section class="config-management">
+                <h2>Save & Load Configurations</h2>
+                <div class="config-controls">
+                    <div class="form-group">
+                        <label for="config-name">Configuration Name:</label>
+                        <input type="text" id="config-name" placeholder="e.g., My Blog Template">
+                    </div>
+                    <div class="button-group">
+                        <button id="save-config-btn" class="btn btn-primary">Save Configuration</button>
+                        <button id="load-config-btn" class="btn btn-secondary">Load Configuration</button>
+                        <button id="delete-config-btn" class="btn btn-danger">Delete Configuration</button>
+                    </div>
+                </div>
+                <div class="saved-configs">
+                    <h3>Saved Configurations</h3>
+                    <select id="config-list" size="5">
+                        <option value="">No saved configurations</option>
+                    </select>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
