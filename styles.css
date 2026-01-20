@@ -69,6 +69,13 @@ section h3 {
     margin-top: 10px;
 }
 
+.section-description {
+    color: #666;
+    font-size: 0.95em;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
 /* Schema Selection */
 .checkbox-group {
     display: grid;
@@ -210,6 +217,27 @@ section h3 {
 
 .code-output code {
     color: #d4d4d4;
+}
+
+/* Preset management */
+.preset-controls {
+    margin-bottom: 20px;
+}
+
+#preset-select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 1em;
+    transition: border-color 0.3s ease;
+}
+
+#preset-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 /* Configuration management */

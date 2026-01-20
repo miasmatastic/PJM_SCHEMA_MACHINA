@@ -12,7 +12,9 @@ class SchemaGenerator {
         this.bindCopyButton();
         this.bindExportButton();
         this.bindConfigButtons();
+        this.bindPresetButtons();
         this.loadSavedConfigurations();
+        this.loadSavedPresets();
     }
 
     // Bind checkbox listeners to show/hide form fields
@@ -197,11 +199,13 @@ class SchemaGenerator {
         const output = document.getElementById('schema-output');
         
         if (schemas.length === 0) {
-            output.innerHTML = `<code>{
+            output.innerHTML = `<code>&lt;script type="application/ld+json"&gt;
+{
   "@context": "https://schema.org",
   "@type": "...",
   "...": "Select schema types and fill in the data to generate"
-}</code>`;
+}
+&lt;/script&gt;</code>`;
             return;
         }
 
@@ -220,7 +224,10 @@ class SchemaGenerator {
         }
 
         this.schemas = schemas;
-        output.innerHTML = `<code>${JSON.stringify(schemaOutput, null, 2)}</code>`;
+        const jsonString = JSON.stringify(schemaOutput, null, 2);
+        output.innerHTML = `<code>&lt;script type="application/ld+json"&gt;
+${jsonString}
+&lt;/script&gt;</code>`;
     }
 
     // Copy schema to clipboard
@@ -453,6 +460,237 @@ class SchemaGenerator {
         setTimeout(() => {
             msgDiv.remove();
         }, 3000);
+    }
+
+    // Business/Client Preset Management
+    bindPresetButtons() {
+        document.getElementById('save-preset-btn').addEventListener('click', () => {
+            this.savePreset();
+        });
+
+        document.getElementById('load-preset-btn').addEventListener('click', () => {
+            this.loadPresetFromDropdown();
+        });
+
+        document.getElementById('delete-preset-btn').addEventListener('click', () => {
+            this.deletePreset();
+        });
+
+        document.getElementById('export-preset-btn').addEventListener('click', () => {
+            this.exportPreset();
+        });
+
+        document.getElementById('import-preset-btn').addEventListener('click', () => {
+            document.getElementById('preset-file-input').click();
+        });
+
+        document.getElementById('preset-file-input').addEventListener('change', (e) => {
+            this.importPreset(e);
+        });
+
+        // Auto-load preset when selected from dropdown
+        document.getElementById('preset-select').addEventListener('change', (e) => {
+            if (e.target.value) {
+                this.loadPresetFromDropdown();
+            }
+        });
+    }
+
+    savePreset() {
+        const presetName = document.getElementById('preset-name').value.trim();
+        
+        if (!presetName) {
+            this.showErrorMessage('Please enter a preset name');
+            return;
+        }
+
+        // Collect only business-universal fields (Organization and Website)
+        const preset = {
+            name: presetName,
+            timestamp: new Date().toISOString(),
+            organization: {
+                name: document.getElementById('org-name').value,
+                url: document.getElementById('org-url').value,
+                logo: document.getElementById('org-logo').value,
+                description: document.getElementById('org-description').value
+            },
+            website: {
+                name: document.getElementById('website-name').value,
+                url: document.getElementById('website-url').value,
+                search: document.getElementById('website-search').value
+            }
+        };
+
+        // Get existing presets from localStorage
+        const presets = JSON.parse(localStorage.getItem('schemaPresets') || '{}');
+        presets[presetName] = preset;
+        localStorage.setItem('schemaPresets', JSON.stringify(presets));
+
+        this.loadSavedPresets();
+        this.showSuccessMessage(`Preset "${presetName}" saved!`);
+        
+        // Auto-select the newly saved preset
+        document.getElementById('preset-select').value = presetName;
+    }
+
+    loadPresetFromDropdown() {
+        const presetSelect = document.getElementById('preset-select');
+        const selectedPreset = presetSelect.value;
+
+        if (!selectedPreset || selectedPreset === '') {
+            this.showErrorMessage('Please select a preset to load');
+            return;
+        }
+
+        const presets = JSON.parse(localStorage.getItem('schemaPresets') || '{}');
+        const preset = presets[selectedPreset];
+
+        if (!preset) {
+            this.showErrorMessage('Preset not found');
+            return;
+        }
+
+        this.applyPreset(preset);
+        this.showSuccessMessage(`Preset "${selectedPreset}" loaded!`);
+    }
+
+    applyPreset(preset) {
+        // Load organization data
+        document.getElementById('org-name').value = preset.organization.name || '';
+        document.getElementById('org-url').value = preset.organization.url || '';
+        document.getElementById('org-logo').value = preset.organization.logo || '';
+        document.getElementById('org-description').value = preset.organization.description || '';
+
+        // Load website data
+        document.getElementById('website-name').value = preset.website.name || '';
+        document.getElementById('website-url').value = preset.website.url || '';
+        document.getElementById('website-search').value = preset.website.search || '';
+    }
+
+    deletePreset() {
+        const presetSelect = document.getElementById('preset-select');
+        const selectedPreset = presetSelect.value;
+
+        if (!selectedPreset || selectedPreset === '') {
+            this.showErrorMessage('Please select a preset to delete');
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to delete "${selectedPreset}"?`)) {
+            return;
+        }
+
+        const presets = JSON.parse(localStorage.getItem('schemaPresets') || '{}');
+        delete presets[selectedPreset];
+        localStorage.setItem('schemaPresets', JSON.stringify(presets));
+
+        this.loadSavedPresets();
+        this.showSuccessMessage(`Preset "${selectedPreset}" deleted!`);
+    }
+
+    exportPreset() {
+        const presetSelect = document.getElementById('preset-select');
+        const selectedPreset = presetSelect.value;
+
+        if (!selectedPreset || selectedPreset === '') {
+            this.showErrorMessage('Please select a preset to export');
+            return;
+        }
+
+        const presets = JSON.parse(localStorage.getItem('schemaPresets') || '{}');
+        const preset = presets[selectedPreset];
+
+        if (!preset) {
+            this.showErrorMessage('Preset not found');
+            return;
+        }
+
+        const blob = new Blob([JSON.stringify(preset, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${selectedPreset.replace(/[^a-z0-9]/gi, '_')}_preset.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        this.showSuccessMessage(`Preset "${selectedPreset}" exported!`);
+    }
+
+    importPreset(event) {
+        const file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const preset = JSON.parse(e.target.result);
+                
+                // Validate preset structure
+                if (!preset.name || !preset.organization || !preset.website) {
+                    this.showErrorMessage('Invalid preset file format');
+                    return;
+                }
+
+                // Get existing presets
+                const presets = JSON.parse(localStorage.getItem('schemaPresets') || '{}');
+                
+                // Check if preset name already exists
+                let presetName = preset.name;
+                if (presets[presetName]) {
+                    if (!confirm(`Preset "${presetName}" already exists. Overwrite?`)) {
+                        return;
+                    }
+                }
+
+                // Save the preset
+                presets[presetName] = preset;
+                localStorage.setItem('schemaPresets', JSON.stringify(presets));
+
+                this.loadSavedPresets();
+                this.showSuccessMessage(`Preset "${presetName}" imported!`);
+                
+                // Auto-select the imported preset
+                document.getElementById('preset-select').value = presetName;
+                
+            } catch (error) {
+                this.showErrorMessage('Failed to parse preset file: ' + error.message);
+            }
+        };
+        
+        reader.readAsText(file);
+        
+        // Reset file input
+        event.target.value = '';
+    }
+
+    loadSavedPresets() {
+        const presetSelect = document.getElementById('preset-select');
+        const presets = JSON.parse(localStorage.getItem('schemaPresets') || '{}');
+        
+        // Store current selection
+        const currentSelection = presetSelect.value;
+        
+        // Clear and rebuild dropdown
+        presetSelect.innerHTML = '<option value="">-- Select a preset --</option>';
+        
+        const presetNames = Object.keys(presets);
+        if (presetNames.length > 0) {
+            presetNames.sort().forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                presetSelect.appendChild(option);
+            });
+        }
+        
+        // Restore selection if it still exists
+        if (currentSelection && presets[currentSelection]) {
+            presetSelect.value = currentSelection;
+        }
     }
 }
 
