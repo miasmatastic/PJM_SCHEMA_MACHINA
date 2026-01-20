@@ -38,6 +38,10 @@
                         <input type="checkbox" id="person-schema" value="Person">
                         <span>Person/Author</span>
                     </label>
+                    <label>
+                        <input type="checkbox" id="sameas-schema" value="SameAs">
+                        <span>SameAs (Social Links)</span>
+                    </label>
                 </div>
             </section>
 
@@ -131,6 +135,26 @@
                     <div class="form-group">
                         <label for="person-description">Description:</label>
                         <textarea id="person-description" placeholder="Enter person description"></textarea>
+                    </div>
+                </div>
+
+                <!-- SameAs Schema Fields -->
+                <div id="sameas-fields" class="schema-fields" style="display: none;">
+                    <h3>SameAs Links (Social Media & External Profiles)</h3>
+                    <div class="form-group">
+                        <label for="sameas-entity-type">Entity Type:</label>
+                        <select id="sameas-entity-type">
+                            <option value="Organization">Organization</option>
+                            <option value="Person">Person</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sameas-name">Name:</label>
+                        <input type="text" id="sameas-name" placeholder="Enter organization or person name">
+                    </div>
+                    <div class="form-group">
+                        <label for="sameas-links">Social Media & External URLs (one per line):</label>
+                        <textarea id="sameas-links" placeholder="https://facebook.com/yourpage&#10;https://twitter.com/yourhandle&#10;https://linkedin.com/company/yourcompany&#10;https://instagram.com/yourhandle"></textarea>
                     </div>
                 </div>
             </section>

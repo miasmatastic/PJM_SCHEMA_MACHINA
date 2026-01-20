@@ -22,7 +22,8 @@ class SchemaGenerator {
             'Organization': 'organization-fields',
             'WebSite': 'website-fields',
             'BreadcrumbList': 'breadcrumb-fields',
-            'Person': 'person-fields'
+            'Person': 'person-fields',
+            'SameAs': 'sameas-fields'
         };
 
         const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]');
@@ -55,6 +56,7 @@ class SchemaGenerator {
         const websiteChecked = document.getElementById('website-schema').checked;
         const breadcrumbChecked = document.getElementById('breadcrumb-schema').checked;
         const personChecked = document.getElementById('person-schema').checked;
+        const sameAsChecked = document.getElementById('sameas-schema').checked;
 
         // Generate Article schema
         if (articleChecked) {
@@ -189,6 +191,37 @@ class SchemaGenerator {
             schemas.push(personSchema);
         }
 
+        // Generate SameAs schema
+        if (sameAsChecked) {
+            const entityType = document.getElementById('sameas-entity-type').value;
+            const name = document.getElementById('sameas-name').value;
+            const linksText = document.getElementById('sameas-links').value;
+            
+            const sameAsLinks = [];
+            if (linksText) {
+                const lines = linksText.split('\n').filter(line => line.trim());
+                lines.forEach(line => {
+                    const url = line.trim();
+                    if (url) {
+                        sameAsLinks.push(url);
+                    }
+                });
+            }
+
+            const sameAsSchema = {
+                "@context": "https://schema.org",
+                "@type": entityType || "Organization",
+                "name": name || "Entity Name",
+                "sameAs": sameAsLinks.length > 0 ? sameAsLinks : [
+                    "https://facebook.com/example",
+                    "https://twitter.com/example",
+                    "https://linkedin.com/company/example"
+                ]
+            };
+
+            schemas.push(sameAsSchema);
+        }
+
         // Display the generated schema
         this.displaySchema(schemas);
     }
@@ -290,7 +323,8 @@ class SchemaGenerator {
                 organization: document.getElementById('organization-schema').checked,
                 website: document.getElementById('website-schema').checked,
                 breadcrumb: document.getElementById('breadcrumb-schema').checked,
-                person: document.getElementById('person-schema').checked
+                person: document.getElementById('person-schema').checked,
+                sameas: document.getElementById('sameas-schema').checked
             },
             data: {
                 article: {
@@ -318,6 +352,11 @@ class SchemaGenerator {
                     name: document.getElementById('person-name').value,
                     url: document.getElementById('person-url').value,
                     description: document.getElementById('person-description').value
+                },
+                sameas: {
+                    entityType: document.getElementById('sameas-entity-type').value,
+                    name: document.getElementById('sameas-name').value,
+                    links: document.getElementById('sameas-links').value
                 }
             }
         };
@@ -354,6 +393,7 @@ class SchemaGenerator {
         document.getElementById('website-schema').checked = config.selectedSchemas.website;
         document.getElementById('breadcrumb-schema').checked = config.selectedSchemas.breadcrumb;
         document.getElementById('person-schema').checked = config.selectedSchemas.person;
+        document.getElementById('sameas-schema').checked = config.selectedSchemas.sameas || false;
 
         // Trigger checkbox change events to show/hide fields
         document.querySelectorAll('.checkbox-group input[type="checkbox"]').forEach(cb => {
@@ -385,6 +425,13 @@ class SchemaGenerator {
         document.getElementById('person-name').value = config.data.person.name;
         document.getElementById('person-url').value = config.data.person.url;
         document.getElementById('person-description').value = config.data.person.description;
+
+        // Load sameAs data
+        if (config.data.sameas) {
+            document.getElementById('sameas-entity-type').value = config.data.sameas.entityType;
+            document.getElementById('sameas-name').value = config.data.sameas.name;
+            document.getElementById('sameas-links').value = config.data.sameas.links;
+        }
 
         this.showSuccessMessage(`Configuration "${selectedOption}" loaded!`);
     }
