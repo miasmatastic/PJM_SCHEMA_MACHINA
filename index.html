@@ -13,7 +13,15 @@
             <p class="subtitle">Generate SEO-optimized JSON-LD schema for your blog and website</p>
         </header>
 
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-button active" data-tab="schema-generator">Schema Generator</button>
+            <button class="tab-button" data-tab="faq-generator">FAQ Generator</button>
+        </div>
+
         <div class="main-content">
+            <!-- Schema Generator Tab Content -->
+            <div id="schema-generator" class="tab-content active">
             <!-- Schema Type Selection -->
             <section class="schema-selection">
                 <h2>Select Schema Types</h2>
@@ -171,6 +179,45 @@
                     </select>
                 </div>
             </section>
+            </div>
+            <!-- End Schema Generator Tab -->
+
+            <!-- FAQ Generator Tab Content -->
+            <div id="faq-generator" class="tab-content">
+                <section class="faq-input-section">
+                    <h2>FAQ Input</h2>
+                    <p class="instruction-text">Enter your FAQ questions and answers in plain text. Use the format:</p>
+                    <pre class="format-example">Q: Your question here?
+A: Your answer here.
+
+Q: Another question?
+A: Another answer.</pre>
+                    <div class="form-group">
+                        <label for="faq-input">FAQ Questions and Answers:</label>
+                        <textarea id="faq-input" placeholder="Enter FAQ questions and answers..." rows="15"></textarea>
+                    </div>
+                    <div class="output-controls">
+                        <button id="generate-faq-btn" class="btn btn-primary">Generate FAQ HTML & Schema</button>
+                    </div>
+                </section>
+
+                <section class="faq-output-section">
+                    <h2>Generated Output</h2>
+                    <div class="output-controls">
+                        <button id="copy-faq-btn" class="btn btn-secondary">Copy to Clipboard</button>
+                        <button id="save-faq-btn" class="btn btn-secondary">Save as HTML</button>
+                    </div>
+                    <div class="form-group">
+                        <label for="faq-html-output">Gutenberg WordPress HTML:</label>
+                        <textarea id="faq-html-output" readonly rows="15" placeholder="Generated HTML will appear here..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="faq-schema-output">JSON-LD FAQ Schema (with script tags):</label>
+                        <textarea id="faq-schema-output" readonly rows="15" placeholder="Generated JSON-LD schema will appear here..."></textarea>
+                    </div>
+                </section>
+            </div>
+            <!-- End FAQ Generator Tab -->
         </div>
     </div>
 
