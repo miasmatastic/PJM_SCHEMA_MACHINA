@@ -17,15 +17,19 @@ class SchemaGenerator {
 
     // Bind checkbox listeners to show/hide form fields
     bindCheckboxListeners() {
+        const schemaTypeToFieldsMap = {
+            'Article': 'article-fields',
+            'Organization': 'organization-fields',
+            'WebSite': 'website-fields',
+            'BreadcrumbList': 'breadcrumb-fields',
+            'Person': 'person-fields'
+        };
+
         const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]');
         checkboxes.forEach(checkbox => {
             checkbox.addEventListener('change', (e) => {
                 const schemaType = e.target.value;
-                const fieldsId = schemaType.toLowerCase() === 'article' ? 'article-fields' :
-                               schemaType.toLowerCase() === 'organization' ? 'organization-fields' :
-                               schemaType.toLowerCase() === 'website' ? 'website-fields' :
-                               schemaType.toLowerCase() === 'breadcrumblist' ? 'breadcrumb-fields' :
-                               schemaType.toLowerCase() === 'person' ? 'person-fields' : null;
+                const fieldsId = schemaTypeToFieldsMap[schemaType];
                 
                 if (fieldsId) {
                     const fieldsDiv = document.getElementById(fieldsId);
@@ -229,7 +233,7 @@ class SchemaGenerator {
                 this.showSuccessMessage('Schema copied to clipboard!');
             }).catch(err => {
                 console.error('Failed to copy:', err);
-                alert('Failed to copy to clipboard');
+                this.showErrorMessage('Unable to copy to clipboard. Please try selecting and copying the text manually.');
             });
         });
     }
@@ -273,7 +277,7 @@ class SchemaGenerator {
         const configName = document.getElementById('config-name').value.trim();
         
         if (!configName) {
-            alert('Please enter a configuration name');
+            this.showErrorMessage('Please enter a configuration name');
             return;
         }
 
@@ -332,7 +336,7 @@ class SchemaGenerator {
         const selectedOption = configList.value;
 
         if (!selectedOption || selectedOption === '') {
-            alert('Please select a configuration to load');
+            this.showErrorMessage('Please select a configuration to load');
             return;
         }
 
@@ -340,7 +344,7 @@ class SchemaGenerator {
         const config = configs[selectedOption];
 
         if (!config) {
-            alert('Configuration not found');
+            this.showErrorMessage('Configuration not found');
             return;
         }
 
@@ -390,10 +394,11 @@ class SchemaGenerator {
         const selectedOption = configList.value;
 
         if (!selectedOption || selectedOption === '') {
-            alert('Please select a configuration to delete');
+            this.showErrorMessage('Please select a configuration to delete');
             return;
         }
 
+        // Note: Using confirm() dialog is acceptable for destructive actions
         if (!confirm(`Are you sure you want to delete "${selectedOption}"?`)) {
             return;
         }
@@ -431,6 +436,17 @@ class SchemaGenerator {
     showSuccessMessage(message) {
         const msgDiv = document.createElement('div');
         msgDiv.className = 'success-message';
+        msgDiv.textContent = message;
+        document.body.appendChild(msgDiv);
+
+        setTimeout(() => {
+            msgDiv.remove();
+        }, 3000);
+    }
+
+    showErrorMessage(message) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'error-message';
         msgDiv.textContent = message;
         document.body.appendChild(msgDiv);
 
