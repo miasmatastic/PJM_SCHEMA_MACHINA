@@ -210,14 +210,13 @@ class SchemaGenerator {
 
             const sameAsSchema = {
                 "@context": "https://schema.org",
-                "@type": entityType || "Organization",
-                "name": name || "Entity Name",
-                "sameAs": sameAsLinks.length > 0 ? sameAsLinks : [
-                    "https://facebook.com/example",
-                    "https://twitter.com/example",
-                    "https://linkedin.com/company/example"
-                ]
+                "@type": entityType,
+                "name": name
             };
+
+            if (sameAsLinks.length > 0) {
+                sameAsSchema.sameAs = sameAsLinks;
+            }
 
             schemas.push(sameAsSchema);
         }
