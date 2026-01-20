@@ -11,6 +11,7 @@ A JSON-LD schema generator dashboard built with HTML, CSS, and JavaScript. This 
   - WebSite
   - BreadcrumbList
   - Person/Author
+  - SameAs (Social Links)
 - ✅ Dynamic form fields that appear based on selected schema types
 - ✅ Intelligent JSON-LD schema generation from form data
 - ✅ Save and load configurations using localStorage for repeated use
