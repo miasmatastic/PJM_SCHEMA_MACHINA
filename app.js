@@ -218,7 +218,7 @@ class SchemaGenerator {
 
         const combinedOutput = `${htmlOutput}\n\n${schemaOutput}`;
         
-        const blob = new Blob([combinedOutput], { type: 'text/html' });
+        const blob = new Blob([combinedOutput], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
