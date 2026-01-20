@@ -201,18 +201,18 @@ class SchemaGenerator {
             if (linksText) {
                 const lines = linksText.split('\n').filter(line => line.trim());
                 lines.forEach(line => {
-                    const url = line.trim();
-                    if (url) {
-                        sameAsLinks.push(url);
-                    }
+                    sameAsLinks.push(line.trim());
                 });
             }
 
             const sameAsSchema = {
                 "@context": "https://schema.org",
-                "@type": entityType,
-                "name": name
+                "@type": entityType
             };
+
+            if (name) {
+                sameAsSchema.name = name;
+            }
 
             if (sameAsLinks.length > 0) {
                 sameAsSchema.sameAs = sameAsLinks;
