@@ -13,6 +13,222 @@ class SchemaGenerator {
         this.bindExportButton();
         this.bindConfigButtons();
         this.loadSavedConfigurations();
+        this.bindTabNavigation();
+        this.bindFAQGenerator();
+    }
+
+    // Tab Navigation
+    bindTabNavigation() {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // Add active class to clicked button
+                button.classList.add('active');
+
+                // Show corresponding tab content
+                const tabId = button.getAttribute('data-tab');
+                const tabContent = document.getElementById(tabId);
+                if (tabContent) {
+                    tabContent.classList.add('active');
+                }
+            });
+        });
+    }
+
+    // FAQ Generator Functionality
+    bindFAQGenerator() {
+        const generateBtn = document.getElementById('generate-faq-btn');
+        const copyBtn = document.getElementById('copy-faq-btn');
+        const saveBtn = document.getElementById('save-faq-btn');
+
+        if (generateBtn) {
+            generateBtn.addEventListener('click', () => {
+                this.generateFAQ();
+            });
+        }
+
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                this.copyFAQOutput();
+            });
+        }
+
+        if (saveBtn) {
+            saveBtn.addEventListener('click', () => {
+                this.saveFAQOutput();
+            });
+        }
+    }
+
+    generateFAQ() {
+        const input = document.getElementById('faq-input').value.trim();
+        
+        if (!input) {
+            this.showErrorMessage('Please enter FAQ questions and answers');
+            return;
+        }
+
+        // Parse FAQ input
+        const faqs = this.parseFAQInput(input);
+        
+        if (faqs.length === 0) {
+            this.showErrorMessage('No valid FAQ questions found. Please use the format:\nQ: Question?\nA: Answer.');
+            return;
+        }
+
+        // Generate HTML for Gutenberg WordPress
+        const html = this.generateGutenbergHTML(faqs);
+        
+        // Generate JSON-LD FAQ Schema
+        const schema = this.generateFAQSchema(faqs);
+
+        // Display outputs
+        document.getElementById('faq-html-output').value = html;
+        document.getElementById('faq-schema-output').value = schema;
+
+        this.showSuccessMessage(`Generated ${faqs.length} FAQ item(s) successfully!`);
+    }
+
+    parseFAQInput(input) {
+        const faqs = [];
+        const lines = input.split('\n');
+        let currentQuestion = '';
+        let currentAnswer = '';
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            
+            // Check if line starts with Q: or Question:
+            if (line.match(/^Q:|^Question:/i)) {
+                // If we have a previous Q&A pair, save it
+                if (currentQuestion && currentAnswer) {
+                    faqs.push({
+                        question: currentQuestion.trim(),
+                        answer: currentAnswer.trim()
+                    });
+                }
+                // Start new question
+                currentQuestion = line.replace(/^Q:|^Question:/i, '').trim();
+                currentAnswer = '';
+            }
+            // Check if line starts with A: or Answer:
+            else if (line.match(/^A:|^Answer:/i)) {
+                currentAnswer = line.replace(/^A:|^Answer:/i, '').trim();
+            }
+            // Continuation of answer (multi-line)
+            else if (line && currentQuestion && currentAnswer) {
+                currentAnswer += ' ' + line;
+            }
+        }
+
+        // Add the last Q&A pair
+        if (currentQuestion && currentAnswer) {
+            faqs.push({
+                question: currentQuestion.trim(),
+                answer: currentAnswer.trim()
+            });
+        }
+
+        return faqs;
+    }
+
+    generateGutenbergHTML(faqs) {
+        let html = '<!-- wp:group {"className":"faq-section"} -->\n';
+        html += '<div class="wp-block-group faq-section">\n\n';
+
+        faqs.forEach((faq, index) => {
+            html += `  <!-- wp:group {"className":"faq-item"} -->\n`;
+            html += `  <div class="wp-block-group faq-item">\n`;
+            html += `    <div class="faq-question">\n`;
+            html += `      <strong>${this.escapeHTML(faq.question)}</strong>\n`;
+            html += `    </div>\n`;
+            html += `    <div class="faq-answer">\n`;
+            html += `      <p>${this.escapeHTML(faq.answer)}</p>\n`;
+            html += `    </div>\n`;
+            html += `  </div>\n`;
+            html += `  <!-- /wp:group -->\n`;
+            if (index < faqs.length - 1) {
+                html += '\n';
+            }
+        });
+
+        html += '\n</div>\n';
+        html += '<!-- /wp:group -->';
+
+        return html;
+    }
+
+    generateFAQSchema(faqs) {
+        const schema = {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqs.map(faq => ({
+                "@type": "Question",
+                "name": faq.question,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": faq.answer
+                }
+            }))
+        };
+
+        const schemaJSON = JSON.stringify(schema, null, 2);
+        return `<script type="application/ld+json">\n${schemaJSON}\n</script>`;
+    }
+
+    escapeHTML(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    copyFAQOutput() {
+        const htmlOutput = document.getElementById('faq-html-output').value;
+        const schemaOutput = document.getElementById('faq-schema-output').value;
+        
+        if (!htmlOutput || !schemaOutput) {
+            this.showErrorMessage('Please generate FAQ output first');
+            return;
+        }
+
+        const combinedOutput = `${htmlOutput}\n\n${schemaOutput}`;
+        
+        navigator.clipboard.writeText(combinedOutput).then(() => {
+            this.showSuccessMessage('FAQ HTML and Schema copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+            this.showErrorMessage('Unable to copy to clipboard. Please try selecting and copying the text manually.');
+        });
+    }
+
+    saveFAQOutput() {
+        const htmlOutput = document.getElementById('faq-html-output').value;
+        const schemaOutput = document.getElementById('faq-schema-output').value;
+        
+        if (!htmlOutput || !schemaOutput) {
+            this.showErrorMessage('Please generate FAQ output first');
+            return;
+        }
+
+        const combinedOutput = `${htmlOutput}\n\n${schemaOutput}`;
+        
+        const blob = new Blob([combinedOutput], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'faq-output.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        this.showSuccessMessage('FAQ output saved successfully!');
     }
 
     // Bind checkbox listeners to show/hide form fields
