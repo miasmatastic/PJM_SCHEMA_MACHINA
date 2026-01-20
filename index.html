@@ -14,6 +14,32 @@
         </header>
 
         <div class="main-content">
+            <!-- Business/Client Preset Management -->
+            <section class="preset-management">
+                <h2>Business/Client Presets</h2>
+                <p class="section-description">Save and load business information (Organization & Website details) for quick schema generation across multiple clients.</p>
+                <div class="preset-controls">
+                    <div class="form-group">
+                        <label for="preset-select">Select Client Preset:</label>
+                        <select id="preset-select">
+                            <option value="">-- Select a preset --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="preset-name">Preset Name:</label>
+                        <input type="text" id="preset-name" placeholder="e.g., Acme Corporation">
+                    </div>
+                    <div class="button-group">
+                        <button id="save-preset-btn" class="btn btn-primary">Save Preset</button>
+                        <button id="load-preset-btn" class="btn btn-secondary">Load Preset</button>
+                        <button id="delete-preset-btn" class="btn btn-danger">Delete Preset</button>
+                        <button id="export-preset-btn" class="btn btn-secondary">Export Preset</button>
+                        <button id="import-preset-btn" class="btn btn-secondary">Import Preset</button>
+                    </div>
+                </div>
+                <input type="file" id="preset-file-input" accept=".json" style="display: none;">
+            </section>
+
             <!-- Schema Type Selection -->
             <section class="schema-selection">
                 <h2>Select Schema Types</h2>
@@ -137,17 +163,20 @@
 
             <!-- Generated Schema Output -->
             <section class="schema-output">
-                <h2>Generated Schema</h2>
+                <h2>Generated Schema (HTML)</h2>
+                <p class="section-description">Ready to copy and paste into your website's HTML.</p>
                 <div class="output-controls">
                     <button id="generate-btn" class="btn btn-primary">Generate Schema</button>
                     <button id="copy-btn" class="btn btn-secondary">Copy to Clipboard</button>
                     <button id="export-btn" class="btn btn-secondary">Export JSON</button>
                 </div>
-                <pre id="schema-output" class="code-output"><code>{
+                <pre id="schema-output" class="code-output"><code>&lt;script type="application/ld+json"&gt;
+{
   "@context": "https://schema.org",
   "@type": "...",
   "...": "Select schema types and fill in the data to generate"
-}</code></pre>
+}
+&lt;/script&gt;</code></pre>
             </section>
 
             <!-- Save/Load Configurations -->
